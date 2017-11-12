@@ -1,6 +1,6 @@
-package library;
+package library.lib;
 
-import person.Person;
+import library.person.Person;
 
 public class PersonAtLibrary extends Person {
     private String personStatus;

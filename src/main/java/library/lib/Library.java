@@ -1,4 +1,4 @@
-package library;
+package library.lib;
 
 public class Library {
     private String name;

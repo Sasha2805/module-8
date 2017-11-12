@@ -1,4 +1,4 @@
-package library;
+package library.lib;
 
 import com.alibaba.fastjson.JSON;
 import java.io.File;
@@ -10,8 +10,8 @@ import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
 public class LibraryFlow {
-    private static final String STATUSES_JSON = "src/main/java/filesJSON/personStatuses.json";
-    private static final String DOOR_STATUSES_JSON = "src/main/java/filesJSON/doorStatuses.json";
+    private static final String STATUSES_JSON = "src/main/java/library.filesJSON/personStatuses.json";
+    private static final String DOOR_STATUSES_JSON = "src/main/java/library.filesJSON/doorStatuses.json";
 
     private Library library;
     private ArrayList<PersonAtLibrary> personsAtLibrary;
@@ -109,7 +109,7 @@ public class LibraryFlow {
     @Override
     public String toString() {
         return "LibraryFlow{" +
-                "library = " + library +
+                "library.lib = " + library +
                 ", peopleCount = " + personsAtLibrary +
                 '}';
     }
