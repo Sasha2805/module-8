@@ -1,15 +1,16 @@
 package library.lib;
 
 import com.alibaba.fastjson.JSON;
+import random.RandomGenerator;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
-public class LibraryFlow {
+public class LibraryThread {
     private static final String STATUSES_JSON = "src/main/java/library.filesJSON/personStatuses.json";
     private static final String DOOR_STATUSES_JSON = "src/main/java/library.filesJSON/doorStatuses.json";
 
@@ -18,7 +19,7 @@ public class LibraryFlow {
     private Semaphore semaphore;
     private Semaphore door = new Semaphore(1);
 
-    public LibraryFlow(Library library, int peopleCount) {
+    public LibraryThread(Library library, int peopleCount) {
         this.library = library;
         this.personsAtLibrary = new ArrayList<>(peopleCount);
         this.semaphore = new Semaphore(library.getMaxAmount());
@@ -51,7 +52,7 @@ public class LibraryFlow {
             showPersonStatus(personsAtLibrary.get(flowIndex), statuses.get(i));
             if (statuses.get(i).equals("read")){
                 try {
-                    Thread.sleep(randomSleepTime(1,5)*1000);
+                    Thread.sleep(RandomGenerator.randomNumber(1,5)*1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -101,14 +102,9 @@ public class LibraryFlow {
         System.out.println(person);
     }
 
-    public int randomSleepTime(int minTime, int maxTime){
-        Random random = new Random();
-        return random.nextInt(maxTime - minTime) + minTime;
-    }
-
     @Override
     public String toString() {
-        return "LibraryFlow{" +
+        return "LibraryThread{" +
                 "library.lib = " + library +
                 ", peopleCount = " + personsAtLibrary +
                 '}';
