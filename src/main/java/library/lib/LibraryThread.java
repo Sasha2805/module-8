@@ -1,6 +1,7 @@
 package library.lib;
 
 import com.alibaba.fastjson.JSON;
+import library.filesJSON.LoadJSON;
 import random.RandomGenerator;
 
 import java.io.File;
@@ -15,18 +16,18 @@ public class LibraryThread {
     private static final String DOOR_STATUSES_JSON = "src/main/java/library.filesJSON/doorStatuses.json";
 
     private Library library;
-    private ArrayList<PersonAtLibrary> personsAtLibrary;
+    private ArrayList<PersonAtLibrary> people;
     private Semaphore semaphore;
     private Semaphore door = new Semaphore(1);
 
     public LibraryThread(Library library, int peopleCount) {
         this.library = library;
-        this.personsAtLibrary = new ArrayList<>(peopleCount);
+        this.people = new ArrayList<>(peopleCount);
         this.semaphore = new Semaphore(library.getMaxAmount());
     }
 
     public void startThreads(){
-        for (int i = 0; i < personsAtLibrary.size(); i++){
+        for (int i = 0; i < people.size(); i++){
             int finalI = i;
             new Thread(() -> {
                 try {
@@ -39,17 +40,17 @@ public class LibraryThread {
     }
 
     private void execute(int flowIndex) throws IOException, InterruptedException {
-        ArrayList<String> statuses = loadStatuses(STATUSES_JSON);
+        ArrayList<String> statuses = LoadJSON.load(STATUSES_JSON);
         if (flowIndex < library.getMaxAmount()){
             statuses.remove("waited");
         }
         for (int i = 0; i < statuses.size(); i++){
             if ((flowIndex > library.getMaxAmount()) && (statuses.get(i).equals("waited"))){
-                showPersonStatus(personsAtLibrary.get(flowIndex), statuses.get(i));
+                showPersonStatus(people.get(flowIndex), statuses.get(i));
                 i++;
                 semaphore.acquire();
             }
-            showPersonStatus(personsAtLibrary.get(flowIndex), statuses.get(i));
+            showPersonStatus(people.get(flowIndex), statuses.get(i));
             if (statuses.get(i).equals("read")){
                 try {
                     Thread.sleep(RandomGenerator.randomNumber(1,5)*1000);
@@ -62,7 +63,7 @@ public class LibraryThread {
     }
 
     public void enterAndExitToLib() throws InterruptedException {
-        for (int i = 0; i < personsAtLibrary.size(); i++){
+        for (int i = 0; i < people.size(); i++){
             door.acquire();
             int finalI = i;
             new Thread(() -> {
@@ -76,9 +77,9 @@ public class LibraryThread {
     }
 
     private void passingThroughDoor(int flowIndex) throws FileNotFoundException {
-        ArrayList<String> statuses = loadStatuses(DOOR_STATUSES_JSON);
+        ArrayList<String> statuses = LoadJSON.load(DOOR_STATUSES_JSON);
         for (int i = 0; i < statuses.size(); i++){
-            showPersonStatus(personsAtLibrary.get(flowIndex), statuses.get(i));
+            showPersonStatus(people.get(flowIndex), statuses.get(i));
             if (statuses.get(i).contains("проходит")){
                 try {
                     Thread.sleep(500);
@@ -90,13 +91,6 @@ public class LibraryThread {
         door.release();
     }
 
-    public ArrayList<String> loadStatuses(String path) throws FileNotFoundException {
-        String json = new Scanner(new File(path)).useDelimiter("\\Z").next();
-        ArrayList<String> statuses = new ArrayList<>();
-        statuses.addAll(JSON.parseArray(json, String.class));
-        return statuses;
-    }
-
     private void showPersonStatus(PersonAtLibrary person, String status){
         person.setPersonStatus(status);
         System.out.println(person);
@@ -106,7 +100,7 @@ public class LibraryThread {
     public String toString() {
         return "LibraryThread{" +
                 "library.lib = " + library +
-                ", peopleCount = " + personsAtLibrary +
+                ", peopleCount = " + people +
                 '}';
     }
 
@@ -114,8 +108,8 @@ public class LibraryThread {
         return library;
     }
 
-    public ArrayList<PersonAtLibrary> getPersonsAtLibrary() {
-        return personsAtLibrary;
+    public ArrayList<PersonAtLibrary> getPeople() {
+        return people;
     }
 
 }

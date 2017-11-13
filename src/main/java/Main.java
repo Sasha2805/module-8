@@ -16,10 +16,10 @@ public class Main {
         in.close();
 
         LibraryThread thread = new LibraryThread(new Library(libraryName, maxAmount), peopleCount);
-        thread.getPersonsAtLibrary().add(new PersonAtLibrary("John", "Smith", 25, null));
-        thread.getPersonsAtLibrary().add(new PersonAtLibrary("Sarah", "Jones", 18, null));
-        thread.getPersonsAtLibrary().add(new PersonAtLibrary("Daniel", "Brown", 24, null));
-        thread.getPersonsAtLibrary().add(new PersonAtLibrary("Olivia", "Evans", 18, null));
+        thread.getPeople().add(new PersonAtLibrary("John", "Smith", 25, null));
+        thread.getPeople().add(new PersonAtLibrary("Sarah", "Jones", 18, null));
+        thread.getPeople().add(new PersonAtLibrary("Daniel", "Brown", 24, null));
+        thread.getPeople().add(new PersonAtLibrary("Olivia", "Evans", 18, null));
         thread.startThreads();
         thread.enterAndExitToLib();
 
