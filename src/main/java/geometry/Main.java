@@ -44,13 +44,7 @@ public class Main extends Application {
         multyThreads.setMaxWidth(BUTTON_WIDTH);
         multyThreads.setOnAction(event -> {
             movementArea.getChildren().clear();
-            int countRectangles = RandomGenerator.random(3, 7);
-            for (int i = 0; i < countRectangles; i++){
-                Rectangle rectangle = MovingRectangle.generateRectangle(movementArea,100, 120, 80, 100);
-                int stepX = MovingRectangle.randomStep(new Random().nextBoolean());
-                int stepY = MovingRectangle.randomStep(new Random().nextBoolean());
-                new Thread(() -> MovingRectangle.move(rectangle, movementArea, 10000, stepX, stepY)).start();
-            }
+            startMove(movementArea, RandomGenerator.random(3, 7));
         });
 
         // Один поток рассчитывает движение каждого прямоугольника
@@ -58,17 +52,6 @@ public class Main extends Application {
         singleThread.setMaxWidth(BUTTON_WIDTH);
         singleThread.setOnAction((event) -> {
             movementArea.getChildren().clear();
-            int countRectangles = RandomGenerator.random(3, 7);
-            ArrayList<Rectangle> rectangles = new ArrayList<>();
-            for (int i = 0; i < countRectangles; i++){
-                rectangles.add(MovingRectangle.generateRectangle(movementArea,100, 120, 80, 100));
-            }
-            new Thread(() -> MovingRectangle.move(rectangles, movementArea, 10000)).start();
-        });
-
-        Button optimalThreads = new Button("Optimal Threads");
-        optimalThreads.setMaxWidth(BUTTON_WIDTH);
-        optimalThreads.setOnAction((event) -> {
             int countRectangles = RandomGenerator.random(3, 7);
             ArrayList<Rectangle> rectangles = new ArrayList<>();
             for (int i = 0; i < countRectangles; i++){
@@ -90,21 +73,24 @@ public class Main extends Application {
         generate.setOnAction(event -> {
             try {
                 movementArea.getChildren().clear();
-                int countRectangles = RandomGenerator.random(Integer.parseInt(minNumRec.getText()),
-                        Integer.parseInt(maxNumRec.getText()));
-                for (int i = 0; i < countRectangles; i++){
-                    Rectangle rectangle = MovingRectangle.generateRectangle(movementArea,100, 120, 80, 100);
-                    int stepX = MovingRectangle.randomStep(new Random().nextBoolean());
-                    int stepY = MovingRectangle.randomStep(new Random().nextBoolean());
-                    new Thread(() -> MovingRectangle.move(rectangle, movementArea, 10000, stepX, stepY)).start();
-                }
+                startMove(movementArea, RandomGenerator.random(Integer.parseInt(minNumRec.getText()),
+                        Integer.parseInt(maxNumRec.getText())));
             } catch (NumberFormatException e) {
                 System.out.println("Вы ввели некорректные данные...");
             }
         });
 
-        menu.getChildren().addAll(multyThreads, singleThread, optimalThreads, min, minNumRec, max, maxNumRec, generate);
+        menu.getChildren().addAll(multyThreads, singleThread, min, minNumRec, max, maxNumRec, generate);
         primaryStage.setScene(new Scene(new HBox(menu, movementArea), WIDTH, HEIGHT));
         primaryStage.show();
+    }
+
+    public void startMove(Pane movementArea, int countRectangles){
+        for (int i = 0; i < countRectangles; i++){
+            Rectangle rectangle = MovingRectangle.generateRectangle(movementArea,100, 120, 80, 100);
+            int stepX = MovingRectangle.randomStep(new Random().nextBoolean());
+            int stepY = MovingRectangle.randomStep(new Random().nextBoolean());
+            new Thread(() -> MovingRectangle.move(rectangle, movementArea, 10000, stepX, stepY)).start();
+        }
     }
 }
