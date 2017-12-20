@@ -1,16 +1,15 @@
 package geometry;
 
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -20,11 +19,21 @@ public class UserInterface {
     private static final int HEIGHT = 700;
     private static final int BUTTON_WIDTH = 120;
 
-    public static Scene getInterface(){
+    public static Scene getScene(){
         VBox menu = Components.createVbox(MENU_WIDTH);
-        menu.getChildren().addAll(Components.createButton("Multy Threads", BUTTON_WIDTH, () -> {}),
-                Components.createButton("Single Thread", BUTTON_WIDTH, () -> {}),
-                Components.createButton("Optimal Threads", BUTTON_WIDTH, () -> {}));
+
+        Canvas canvas = new Canvas(WIDTH - MENU_WIDTH, HEIGHT);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        menu.getChildren().add(Components.createButton("Multy Threads", BUTTON_WIDTH, () -> {
+            MovingRectangles thread = new MovingRectangles(WIDTH, HEIGHT, gc);
+            thread.rectangles = thread.randRectangles(3,7, 100, 150, 80, 120);
+            thread.moveRectangle(thread.rectangles.get(0));
+        }));
+
+        menu.getChildren().add(Components.createButton("Single Thread", BUTTON_WIDTH, () -> {}));
+
+        menu.getChildren().add(Components.createButton("Optimal Threads", BUTTON_WIDTH, () -> {}));
 
         CheckBox checkBox = new CheckBox("Collide with each other");
         checkBox.setTextFill(Color.WHITE);
@@ -32,9 +41,11 @@ public class UserInterface {
         TextField minNumRec = new TextField();
         TextField maxNumRec = new TextField();
         menu.getChildren().addAll(checkBox, Components.createLabel("Min. number of rectangles"), minNumRec,
-                Components.createLabel("Max. number of rectangles"), maxNumRec,
-                Components.createButton("Generate", BUTTON_WIDTH, () -> {}),
-                Components.createButton("Generate all shapes", BUTTON_WIDTH, () -> {
+                Components.createLabel("Max. number of rectangles"), maxNumRec);
+
+        menu.getChildren().add(Components.createButton("Generate", BUTTON_WIDTH, () -> {}));
+
+        menu.getChildren().add(Components.createButton("Generate all shapes", BUTTON_WIDTH, () -> {
                     menu.getChildren().clear();
                     menu.setSpacing(3);
                     ArrayList<Label> labels = new ArrayList<>();
@@ -49,14 +60,12 @@ public class UserInterface {
                         menu.getChildren().add(textFields.get(i));
                     }
                     menu.getChildren().add(Components.createButton("Generate", BUTTON_WIDTH, () -> {}));
-                }));
-
-        Canvas canvas = new Canvas(WIDTH - menu.getMinWidth(), HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        }));
 
         HBox root = new HBox();
         root.getChildren().addAll(menu, canvas);
         return new Scene(root, WIDTH, HEIGHT);
+
     }
 
 }
