@@ -1,31 +1,31 @@
 package library.lib;
 
-import com.alibaba.fastjson.JSON;
-import library.filesJSON.LoadJSON;
+import JSON.LoadJSON;
+import library.person.Person;
+import library.person.PersonStatus;
 import random.RandomGenerator;
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 public class LibraryThread {
-    private static final String STATUSES_JSON = "src/main/java/library.filesJSON/personStatuses.json";
-    private static final String DOOR_STATUSES_JSON = "src/main/java/library.filesJSON/doorStatuses.json";
-
+    private static final String DOOR_STATUSES_JSON = "src/main/java/filesJSON/doorStatuses.json";
+    private List<PersonStatus> statuses = Arrays.asList(PersonStatus.values());
     private Library library;
-    private ArrayList<PersonAtLibrary> people;
-    private Semaphore semaphore;
+    private ArrayList<Person> people;
+    private Semaphore maxAmount;
     private Semaphore door = new Semaphore(1);
 
-    public LibraryThread(Library library, int peopleCount) {
+    public LibraryThread(Library library, ArrayList<Person> people) {
         this.library = library;
-        this.people = new ArrayList<>(peopleCount);
-        this.semaphore = new Semaphore(library.getMaxAmount());
+        this.people = people;
+        this.maxAmount = new Semaphore(library.getMaxAmount());
     }
 
+    // Запускаем количество потоков равных people.size()
     public void startThreads(){
         for (int i = 0; i < people.size(); i++){
             int finalI = i;
@@ -39,30 +39,31 @@ public class LibraryThread {
         }
     }
 
-    private void execute(int flowIndex) throws IOException, InterruptedException {
-        ArrayList<String> statuses = LoadJSON.load(STATUSES_JSON);
-        if (flowIndex < library.getMaxAmount()){
-            statuses.remove("waited");
-        }
+    // Метод принимает индекс person и печатает все соответствующие ему статусы
+    private void execute(int personIndex) throws IOException, InterruptedException {
         for (int i = 0; i < statuses.size(); i++){
-            if ((flowIndex > library.getMaxAmount()) && (statuses.get(i).equals("waited"))){
-                showPersonStatus(people.get(flowIndex), statuses.get(i));
-                i++;
-                semaphore.acquire();
+            if (personIndex < library.getMaxAmount() && (statuses.get(i) == PersonStatus.waited)){
+                continue;                                                   // Если индекс person меньше library.getMaxAmount(),
+            }                                                               // пропускаем статус "waited"
+            if ((personIndex > library.getMaxAmount()) && (statuses.get(i) == PersonStatus.waited)){
+                showPersonStatus(people.get(personIndex), statuses.get(i)); // Если индекс person больше library.getMaxAmount(),
+                i++;                                                        // печатаем статус "waited",
+                maxAmount.acquire();                                        // и ждем пока место в библиотеке освободится
             }
-            showPersonStatus(people.get(flowIndex), statuses.get(i));
-            if (statuses.get(i).equals("read")){
+            showPersonStatus(people.get(personIndex), statuses.get(i));
+            if (statuses.get(i) == PersonStatus.read){
                 try {
-                    Thread.sleep(RandomGenerator.randomNumber(1,5)*1000);
+                    Thread.sleep(RandomGenerator.random(1,5)*1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
-        semaphore.release();
+        maxAmount.release();
     }
 
-    public void enterAndExitToLib() throws InterruptedException {
+    // Запуск потоков, которые отвечают за прохождение Person через дверь библиотеки
+    public void startPassingThroughDoor() throws InterruptedException {
         for (int i = 0; i < people.size(); i++){
             door.acquire();
             int finalI = i;
@@ -76,10 +77,11 @@ public class LibraryThread {
         }
     }
 
-    private void passingThroughDoor(int flowIndex) throws FileNotFoundException {
+    // Печать статусов прохождения через дверь
+    private void passingThroughDoor(int personIndex) throws FileNotFoundException {
         ArrayList<String> statuses = LoadJSON.load(DOOR_STATUSES_JSON);
         for (int i = 0; i < statuses.size(); i++){
-            showPersonStatus(people.get(flowIndex), statuses.get(i));
+           showPersonStatus(people.get(personIndex), statuses.get(i));
             if (statuses.get(i).contains("проходит")){
                 try {
                     Thread.sleep(500);
@@ -91,25 +93,25 @@ public class LibraryThread {
         door.release();
     }
 
-    private void showPersonStatus(PersonAtLibrary person, String status){
-        person.setPersonStatus(status);
-        System.out.println(person);
+    // Печать данных и статуса Person в консоль
+    private void showPersonStatus(Person person, PersonStatus status){
+        System.out.println(person + " " + status);
+    }
+
+    private void showPersonStatus(Person person, String doorStatus){
+        System.out.println(person + " " + doorStatus);
     }
 
     @Override
     public String toString() {
-        return "LibraryThread{" +
-                "library.lib = " + library +
-                ", peopleCount = " + people +
-                '}';
+        return "library.lib = " + library + ", peopleCount = " + people;
     }
 
     public Library getLibrary() {
         return library;
     }
 
-    public ArrayList<PersonAtLibrary> getPeople() {
+    public ArrayList<Person> getPeople() {
         return people;
     }
-
 }

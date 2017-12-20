@@ -32,5 +32,4 @@ public class Library {
     public void setMaxAmount(int maxAmount) {
         this.maxAmount = maxAmount;
     }
-
 }
