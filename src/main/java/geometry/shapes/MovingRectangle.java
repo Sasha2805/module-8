@@ -46,15 +46,34 @@ public class MovingRectangle {
 
     // Рассчитываем движение прямоугольников. Метод для одного потока.
     public static void move(ArrayList<Rectangle> rectangles, Pane movementArea, int numberMovements) {
-        ArrayList<Integer> stepsX = new ArrayList<>();
-        ArrayList<Integer> stepsY = new ArrayList<>();
+        Integer[] stepsX = new Integer[rectangles.size()];
+        Integer[] stepsY = new Integer[rectangles.size()];
         for (int i = 0; i < rectangles.size(); i++){
-            stepsX.add(randomStep(new Random().nextBoolean()));
-            stepsY.add(randomStep(new Random().nextBoolean()));
+            stepsX[i] = randomStep(new Random().nextBoolean());
+            stepsY[i] = randomStep(new Random().nextBoolean());
         }
         for (int i = 0; i < numberMovements; i++){
             for (int j = 0; j < rectangles.size(); j++){
-                move(rectangles.get(j), movementArea, 1, stepsX.get(j), stepsY.get(j));
+                if ((rectangles.get(j).getTranslateX() == 0) ||
+                        (rectangles.get(j).getTranslateX() == movementArea.getMinWidth() - rectangles.get(j).getWidth())) {
+                    stepsX[j] *= -1;
+                }
+                if ((rectangles.get(j).getTranslateY() == 0) ||
+                        (rectangles.get(j).getTranslateY() == movementArea.getMinHeight() - rectangles.get(j).getHeight())) {
+                    stepsY[j] *= -1;
+                }
+                final double x = rectangles.get(j).getTranslateX() + stepsX[j];
+                final double y = rectangles.get(j).getTranslateY() + stepsY[j];
+                int finalI = j;
+                Platform.runLater(() -> {
+                    rectangles.get(finalI).setTranslateX(x);
+                    rectangles.get(finalI).setTranslateY(y);
+                });
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
