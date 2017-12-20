@@ -44,7 +44,7 @@ public class MovingRectangle {
         }
     }
 
-    // Рассчитываем движение прямоугольника. Метод для одного потока.
+    // Рассчитываем движение прямоугольников. Метод для одного потока.
     public static void move(ArrayList<Rectangle> rectangles, Pane movementArea, int numberMovements) {
         ArrayList<Integer> stepsX = new ArrayList<>();
         ArrayList<Integer> stepsY = new ArrayList<>();
