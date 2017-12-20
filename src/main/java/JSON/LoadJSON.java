@@ -1,4 +1,4 @@
-package library.JSON;
+package JSON;
 
 import com.alibaba.fastjson.JSON;
 import java.io.File;
