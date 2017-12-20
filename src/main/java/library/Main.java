@@ -1,3 +1,5 @@
+package library;
+
 import library.lib.Library;
 import library.lib.LibraryThread;
 import library.person.Person;
