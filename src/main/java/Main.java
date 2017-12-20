@@ -1,28 +1,19 @@
 import library.lib.Library;
 import library.lib.LibraryThread;
-import library.lib.PersonAtLibrary;
+import library.person.Person;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        Scanner in = new Scanner(System.in);
-        System.out.print("Enter library.lib name: ");
-        String libraryName = in.next();
-        System.out.print("Enter maxAmount: ");
-        int maxAmount = in.nextInt();
-        System.out.print("Enter peopleCount: ");
-        int peopleCount = in.nextInt();
-        in.close();
+        ArrayList<Person> people = new ArrayList<>();
+        people.add(new Person("John", "Smith", 25));
+        people.add(new Person("Sarah", "Jones", 18));
+        people.add(new Person("Daniel", "Brown", 24));
+        people.add(new Person("Olivia", "Evans", 18));
 
-        LibraryThread thread = new LibraryThread(new Library(libraryName, maxAmount), peopleCount);
-        thread.getPeople().add(new PersonAtLibrary("John", "Smith", 25, null));
-        thread.getPeople().add(new PersonAtLibrary("Sarah", "Jones", 18, null));
-        thread.getPeople().add(new PersonAtLibrary("Daniel", "Brown", 24, null));
-        thread.getPeople().add(new PersonAtLibrary("Olivia", "Evans", 18, null));
-        thread.startThreads();
-        thread.enterAndExitToLib();
-
+        LibraryThread libraryThread = new LibraryThread(new Library("Library", 2), people);
+        libraryThread.startThreads();
+        libraryThread.startPassingThroughDoor();
     }
-
 }
